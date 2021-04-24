@@ -1,8 +1,8 @@
 from telegram.ext import *
 from telegram import Update, ForceReply, ParseMode
-# import pymongo
+import pymongo
 import logging
-# import os
+import os
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 def start_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-    # bot = context.bot
     update.message.reply_markdown_v2(
         fr'Hi {user.mention_markdown_v2()}\!',
         reply_markup=ForceReply(selective=True),
@@ -22,12 +21,13 @@ def start_command(update: Update, context: CallbackContext) -> None:
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
-    update.message.reply_text("List of ccommands:\n\n"
-                              "*Utils*\n"
-                              "/help - Shows a list of all possible commands\n"
-                              "/setup - Setup the bot for your needs",
-                              parse_mode=ParseMode.MARKDOWN)
-    # update.message.reply_text('Help!')
+    update.message.reply_text(
+        "*List of commands:*\n\n"
+        "*Utils*\n"
+        "/help - Shows a list of all possible commands\n"
+        "/setup - Setup the bot for your needs\n",
+        parse_mode=ParseMode.MARKDOWN
+    )
 
 
 def setup_command(update: Update, context: CallbackContext) -> None:
@@ -37,8 +37,7 @@ def setup_command(update: Update, context: CallbackContext) -> None:
 
 def main():
     token = "1794376012:AAFqfMrJD-axHouu8feNxbaixDgP9i4M7LI"
-    # port = int(os.environ.get("PORT", "8443"))
-    port = 1990
+    port = int(os.environ.get("PORT", "8443"))
     updater = Updater(token)
 
     dispatcher = updater.dispatcher
