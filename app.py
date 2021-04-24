@@ -19,7 +19,7 @@ def start_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
     update.message.reply_markdown_v2(
-        fr'Hi {user.mention_markdown_v2()}\!',
+        fr'Hi {user.mention_markdown_v2()}\!, setup the bot by using the /setup command and follow all the steps',
         reply_markup=ForceReply(selective=True),
     )
 
@@ -59,8 +59,6 @@ def main():
     # updater.start_webhook(listen="0.0.0.0", port=port, url_path=token)
     # updater.bot.set_webhook("https://{0}.herokuapp.com/{1}".format(heroku_name, token))
     updater.idle()
-
-    # updater.idle()
 
 
 if __name__ == '__main__':
