@@ -6,7 +6,8 @@ import os
 
 _client = pymongo.MongoClient(
     "mongodb+srv://nikodallanoce:<password>@clustertest.zbdu9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-_db = _client.test
+_db = _client["Enterprise"]
+_customers = _db["Customers"]
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
