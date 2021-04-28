@@ -5,9 +5,10 @@ import logging
 import os
 
 _client = pymongo.MongoClient(
-    "mongodb+srv://nikodallanoce:<password>@clustertest.zbdu9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    "mongodb+srv://nikodallanoce:pieroangela@clustertest.zbdu9.mongodb.net/Enterprise?retryWrites=true&w=majority")
 _db = _client["Enterprise"]
-_customers = _db["Customers"]
+customers = _db["Customers"]
+topic = _db["Topics"]
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -38,6 +39,21 @@ def help_command(update: Update, context: CallbackContext) -> None:
 def setup_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     update.message.reply_text("Inserisci il nome col quale verrai registrato nel sistema")
+    context.bot.send_message(-549095250, "Prova invio chat")
+
+
+def users_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /help is issued."""
+    # update.message.reply_text("Inserisci il nome col quale verrai registrato nel sistema")
+    users = customers.find()
+    # update.message.reply_text()
+    out = ""
+    for user in users:
+        out += "Nome cliente: {0}, contatto Telegram: {1}\n".format(user["name"], user["chat_id"])
+
+    update.message.reply_text("*Lista dei clienti del nostro servizio:*\n" + out, parse_mode=ParseMode.MARKDOWN)
+
+    # context.bot.send_message(-549095250, "Prova invio chat")
 
 
 def main():
@@ -50,6 +66,7 @@ def main():
     dispatcher.add_handler(CommandHandler("start", start_command))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler("setup", setup_command))
+    dispatcher.add_handler(CommandHandler("users", users_command))
 
     # dispatcher.add_error_handler(error)
 
