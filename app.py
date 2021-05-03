@@ -31,11 +31,10 @@ def help_command(update: Update, context: CallbackContext) -> None:
         "*List of commands:*\n\n"
         "*/help*\n"
         "Shows a list of all possible commands\n\n"
-        # "/setup - Setup the bot for your needs\n",
         "*/topics [topic]*\n"
-        "Shows every topic you're subscribed to (if no argument is passed), "
-        "by using an argument you can look for specific topics, example: /topics userName/subtopic will return all the"
-        " topics that fall in userName/subtopic\n",
+        "Shows every topic you're subscribed to (if no argument is passed)\n\n"
+        "*/changeOffset topic offset*\n"
+        "Changes the smapling interval of the desired topic (to which you're subscribed to) with the value *offset*",
         parse_mode=ParseMode.MARKDOWN
     )
 
@@ -78,6 +77,27 @@ def topics_command(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(out, parse_mode=ParseMode.MARKDOWN)
 
 
+def change_offset_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /changeOffset is issued."""
+    chat_id = update.message.chat.id
+    if len(context.args) != 2:
+        update.message.reply_text("There should be exactly two arguments to the command /changeOffset")
+        return
+
+    user = customers.find_one({"chatID": chat_id})
+    topic = context.args[0]
+    offset = int(context.args[1])
+    topics.update_one(
+        {"name": topic, "customerID": user["_id"]}, {"$set": {"samplingInterval": offset}}
+    )
+    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+        update.message.reply_text(
+            "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
+    else:
+        update.message.reply_text(
+            "The topic {0} offset was updated successfully".format(topic))
+
+
 def main():
     token = "1794376012:AAFqfMrJD-axHouu8feNxbaixDgP9i4M7LI"
     port = int(os.environ.get("PORT", "8443"))
@@ -89,6 +109,7 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler("users", users_command))
     dispatcher.add_handler(CommandHandler("topics", topics_command))
+    dispatcher.add_handler(CommandHandler("changeOffset", change_offset_command))
 
     # dispatcher.add_error_handler(error)
 
