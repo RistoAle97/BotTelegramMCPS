@@ -5,8 +5,8 @@ import logging
 import os
 
 _client = pymongo.MongoClient(
-    "mongodb+srv://nikodallanoce:pieroangela@clustertest.zbdu9.mongodb.net/Enterprise?retryWrites=true&w=majority")
-_db = _client["Enterprise"]
+    "mongodb+srv://nikodallanoce:pieroangela@clustertest.zbdu9.mongodb.net/Mqttemp?retryWrites=true&w=majority")
+_db = _client["Mqttemp"]
 customers = _db["Customers"]
 topics = _db["Topics"]
 
@@ -57,23 +57,23 @@ def topics_command(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Hai inserito troppi argomenti al comando /topics")
         return
 
+    user = customers.find_one({"chatID": chat_id})
     if context.args:
         user_topics = topics.find(
             {"name": {'$regex': context.args[0]+'/'},
-             "customer.chat_id": chat_id}
+             "customerID": user["_id"]}
         )
     else:
-        user_topics = topics.find({"customer.chat_id": chat_id})
+        user_topics = topics.find({"customerID": user["_id"]})
 
-    user = customers.find_one({"chat_id": chat_id})
     if not user:
         update.message.reply_text("Non sei registrato nel sistema")
-    elif topics.count_documents({"customer.chat_id": chat_id}) == 0:
+    elif topics.count_documents({"customerID": user["_id"]}) == 0:
         update.message.reply_text("Non esiste alcun topic associato col tuo nome/chat: {0}".format(user["name"]))
     else:
         out = "*List of the topics you're subscribed to as {0}:*\n".format(user["name"])
         for topic in user_topics:
-            out += "Topic: {0}, Offset: {1}\n".format(topic["name"], topic["sampling_offset"])
+            out += "Topic: {0}, Offset: {1}\n".format(topic["name"], topic["samplingInterval"])
 
         update.message.reply_text(out, parse_mode=ParseMode.MARKDOWN)
 
