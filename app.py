@@ -98,6 +98,14 @@ def change_offset_command(update: Update, context: CallbackContext) -> None:
             "The topic {0} offset was updated successfully".format(topic))
 
 
+def average_temperature_command(update: Update, context: CallbackContext) -> None:
+    pass
+
+
+def average_humidity_command(update: Update, context: CallbackContext) -> None:
+    pass
+
+
 def main():
     token = "1794376012:AAFqfMrJD-axHouu8feNxbaixDgP9i4M7LI"
     port = int(os.environ.get("PORT", "8443"))
@@ -110,6 +118,8 @@ def main():
     dispatcher.add_handler(CommandHandler("users", users_command))
     dispatcher.add_handler(CommandHandler("topics", topics_command))
     dispatcher.add_handler(CommandHandler("changeOffset", change_offset_command))
+    dispatcher.add_handler(CommandHandler("avgTemp", average_temperature_command))
+    dispatcher.add_handler(CommandHandler("avgHum", average_humidity_command))
 
     # dispatcher.add_error_handler(error)
 
