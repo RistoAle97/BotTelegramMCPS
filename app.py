@@ -16,7 +16,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-def start_command(update: Update, context: CallbackContext) -> None:
+def start_command(update: Update, _: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
     update.message.reply_markdown_v2(
@@ -25,7 +25,7 @@ def start_command(update: Update, context: CallbackContext) -> None:
     )
 
 
-def help_command(update: Update, context: CallbackContext) -> None:
+def help_command(update: Update, _: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     update.message.reply_text(
         "*List of commands:*\n\n"
@@ -34,19 +34,23 @@ def help_command(update: Update, context: CallbackContext) -> None:
         "*/topics [topic]*\n"
         "Shows every topic you're subscribed to (if no argument is passed)\n\n"
         "*/changeOffset topic offset*\n"
-        "Changes the smapling interval of the desired topic (to which you're subscribed to) with the value *offset*",
+        "Changes the smapling interval of the desired topic (to which you're subscribed to) with the value *offset*\n\n"
+        "*/avgTemp*\n"
+        "Gives the average temperature of the current day if no argument is passed\n\n"
+        "*/avgTemp*\n"
+        "Gives the average humidity of the current day if no argument is passed",
         parse_mode=ParseMode.MARKDOWN
     )
 
 
-def users_command(update: Update, context: CallbackContext) -> None:
+'''def users_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     users = customers.find()
     out = ""
     for user in users:
         out += "Nome cliente: {0}, contatto Telegram: {1}\n".format(user["name"], user["chat_id"])
 
-    update.message.reply_text("*Lista dei clienti del nostro servizio:*\n" + out, parse_mode=ParseMode.MARKDOWN)
+    update.message.reply_text("*Lista dei clienti del nostro servizio:*\n" + out, parse_mode=ParseMode.MARKDOWN)'''
 
 
 def topics_command(update: Update, context: CallbackContext) -> None:
@@ -115,7 +119,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler("start", start_command))
     dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(CommandHandler("users", users_command))
+    # dispatcher.add_handler(CommandHandler("users", users_command))
     dispatcher.add_handler(CommandHandler("topics", topics_command))
     dispatcher.add_handler(CommandHandler("changeOffset", change_offset_command))
     dispatcher.add_handler(CommandHandler("avgTemp", average_temperature_command))
