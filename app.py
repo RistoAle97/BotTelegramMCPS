@@ -1,7 +1,8 @@
 from telegram.ext import *
-from telegram import Update, ForceReply, ParseMode
+from telegram import Update, ForceReply, ParseMode, BotCommand
 import pymongo
 import logging
+import datetime
 import os
 
 _client = pymongo.MongoClient(
@@ -9,6 +10,7 @@ _client = pymongo.MongoClient(
 _db = _client["Mqttemp"]
 customers = _db["Customers"]
 topics = _db["Topics"]
+records = _db["Records"]
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -34,7 +36,9 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "*/topics [topic]*\n"
         "Shows every topic you're subscribed to (if no argument is passed)\n\n"
         "*/changeOffset topic offset*\n"
-        "Changes the smapling interval of the desired topic (to which you're subscribed to) with the value *offset*\n\n"
+        "Changes the smapling interval of the desired topic (you're subscribed to) with the value *offset*\n\n"
+        "*/changeTrigger topic trigger*\n"
+        "Changes the trigger condition of the desired topic (you're subscribed to) with the value *trigger*\n\n"
         "*/avgTemp*\n"
         "Gives the average temperature of the current day if no argument is passed\n\n"
         "*/avgTemp*\n"
@@ -63,7 +67,7 @@ def topics_command(update: Update, context: CallbackContext) -> None:
     user = customers.find_one({"chatID": chat_id})
     if context.args:
         user_topics = topics.find(
-            {"name": {'$regex': context.args[0]+'/'},
+            {"name": {'$regex': context.args[0] + '/'},
              "customerID": user["_id"]}
         )
     else:
@@ -102,8 +106,45 @@ def change_offset_command(update: Update, context: CallbackContext) -> None:
             "The topic {0} offset was updated successfully".format(topic))
 
 
+def change_trigger_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /changeTrigger is issued."""
+    chat = update.message.chat.id
+    if len(context.args) != 2:
+        update.message.reply_text("There should be exactly two arguments to the /changeTrigger command")
+        return
+
+    user = customers.find_one({"chatID": chat})
+    topic = context.args[0]
+    trigger = int(context.args[1])
+    topics.update_one(
+        {"name": topic, "customerID": user["_id"]}, {"$set": {"triggerCond": trigger}}
+    )
+    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+        update.message.reply_text(
+            "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
+    else:
+        update.message.reply_text(
+            "The topic {0} trigger condition was updated successfully".format(topic))
+
+
 def average_temperature_command(update: Update, context: CallbackContext) -> None:
-    pass
+    chat = update.message.chat.id
+    if len(context.args) > 2 or len(context.args) < 1:
+        update.message.reply_text("Wrong arguments")
+        return
+
+    user = customers.find_one({"chatID": chat})
+    topic = context.args[0]
+    user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
+    if len(context.args) == 1:
+        date = datetime.date.isoformat(datetime.datetime.now())
+        temperature_records = records.aggregate({
+            "topicID": user_topic["_id"],
+            "date": "$date",
+            "avgtemp": {"$group": {"$avg": "temp.val"}}
+        })
+        update.message.reply_text("Average temperature for today: {0}".format(temperature_records["avgtemp"]))
+    # pass
 
 
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
@@ -121,9 +162,17 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command))
     # dispatcher.add_handler(CommandHandler("users", users_command))
     dispatcher.add_handler(CommandHandler("topics", topics_command))
-    dispatcher.add_handler(CommandHandler("changeOffset", change_offset_command))
-    dispatcher.add_handler(CommandHandler("avgTemp", average_temperature_command))
-    dispatcher.add_handler(CommandHandler("avgHum", average_humidity_command))
+    dispatcher.add_handler(CommandHandler("changeoffset", change_offset_command))
+    dispatcher.add_handler(CommandHandler("changetrigger", change_trigger_command))
+    dispatcher.add_handler(CommandHandler("avgtemp", average_temperature_command))
+    dispatcher.add_handler(CommandHandler("avghum", average_humidity_command))
+    commands = [
+        BotCommand("start", "Starts the bot"),
+        BotCommand("help", "Shows a list of all possible commands"),
+        BotCommand("topics", "Shows every topic"),
+        BotCommand("changeoffset", "Changes the smapling interval of the topic"),
+        BotCommand("changetrigger", "Changes the threshold of the topic")]
+    dispatcher.bot.set_my_commands(commands)
 
     # dispatcher.add_error_handler(error)
 
