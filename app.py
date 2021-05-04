@@ -48,16 +48,6 @@ def help_command(update: Update, _: CallbackContext) -> None:
     )
 
 
-'''def users_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /help is issued."""
-    users = customers.find()
-    out = ""
-    for user in users:
-        out += "Nome cliente: {0}, contatto Telegram: {1}\n".format(user["name"], user["chat_id"])
-
-    update.message.reply_text("*Lista dei clienti del nostro servizio:*\n" + out, parse_mode=ParseMode.MARKDOWN)'''
-
-
 def topics_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /topics is issued."""
     chat_id = update.message.chat.id
@@ -164,68 +154,18 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
 
 def average_temperature_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avgtemp is issued."""
-    '''chat = update.message.chat.id
-    if len(context.args) > 2 or len(context.args) < 1:
-        update.message.reply_text("Wrong arguments for the /avgtemp command, use /help for more details")
-        return
-
-    user = customers.find_one({"chatID": chat})
-    topic = context.args[0]
-    user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
-    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
-        update.message.reply_text(
-            "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
-        return
-
-    if len(context.args) == 1:
-        date = datetime.datetime.today().date()
-        out = "today"
-    else:
-        date = datetime.datetime.strptime(context.args[1], '%Y-%m-%d').date()
-        out = context.args[1]
-
-    date = datetime.datetime(date.year, date.month, date.day, 0, 0, 0)
-    temperature_records = records.find_one({
-        "topicID": user_topic["_id"],
-        "date": date
-    })'''
     temperature_records, out = __commands_setup(update, context, "temperature")
     t_list = temperature_records["temp"]
     avg_t = float(sum(temperature['val'] for temperature in t_list)) / len(t_list)
-    update.message.reply_text("Average temperature for {0}: {1}".format(out, avg_t), parse_mode=ParseMode.MARKDOWN)
+    update.message.reply_text("*Average temperature for {0}:*\n {1}".format(out, avg_t), parse_mode=ParseMode.MARKDOWN)
 
 
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avghum is issued."""
-    '''if len(context.args) > 2 or len(context.args) < 1:
-        update.message.reply_text("Wrong arguments for the /avghum command, use /help for more details")
-        return
-
-    chat_id = update.message.chat.id
-    user_h = customers.find_one({"chatID": chat_id})
-    topic_h = context.args[0]
-    user_topic = topics.find_one({"name": topic_h, "customerID": user_h["_id"]})
-    if topics.count_documents({"name": topic_h, "customerID": user_h["_id"]}) == 0:
-        update.message.reply_text(
-            "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic_h))
-        return
-
-    if len(context.args) == 1:
-        date = datetime.datetime.today().date()
-        out = "today"
-    else:
-        date = datetime.datetime.strptime(context.args[1], '%Y-%m-%d').date()
-        out = context.args[1]
-
-    date = datetime.datetime(date.year, date.month, date.day, 0, 0, 0)
-    temperature_records = records.find_one({
-        "topicID": user_topic["_id"],
-        "date": date
-    })'''
     humidity_records, out = __commands_setup(update, context, "humidity")
     h_list = humidity_records["hum"]
     avg_h = float(sum(humidity['val'] for humidity in h_list)) / len(h_list)
-    update.message.reply_text("Average humidity for {0}: {1}".format(out, avg_h), parse_mode=ParseMode.MARKDOWN)
+    update.message.reply_text("*Average humidity for {0}:*\n {1}".format(out, avg_h), parse_mode=ParseMode.MARKDOWN)
 
 
 def main():
@@ -237,7 +177,6 @@ def main():
 
     dispatcher.add_handler(CommandHandler("start", start_command))
     dispatcher.add_handler(CommandHandler("help", help_command))
-    # dispatcher.add_handler(CommandHandler("users", users_command))
     dispatcher.add_handler(CommandHandler("topics", topics_command))
     dispatcher.add_handler(CommandHandler("changeoffset", change_offset_command))
     dispatcher.add_handler(CommandHandler("changetrigger", change_trigger_command))
