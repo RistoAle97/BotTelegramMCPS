@@ -1,7 +1,6 @@
 from telegram.ext import *
 from telegram import Update, ForceReply, ParseMode, BotCommand
 import pymongo
-# import numpy as np
 import logging
 import datetime
 import os
@@ -40,9 +39,9 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "Changes the smapling interval of the desired topic (you're subscribed to) with the value *offset*\n\n"
         "*/changeTrigger topic trigger*\n"
         "Changes the trigger condition of the desired topic (you're subscribed to) with the value *trigger*\n\n"
-        "*/avgTemp*\n"
+        "*/avgTemp [year-month-day]*\n"
         "Gives the average temperature of the current day if no argument is passed\n\n"
-        "*/avgTemp*\n"
+        "*/avgTemp [year-month-day]*\n"
         "Gives the average humidity of the current day if no argument is passed",
         parse_mode=ParseMode.MARKDOWN
     )
@@ -87,7 +86,8 @@ def change_offset_command(update: Update, context: CallbackContext) -> None:
     topic = context.args[0]
     offset = int(context.args[1])
     topics.update_one(
-        {"name": topic, "customerID": user["_id"]}, {"$set": {"samplingInterval": offset}}
+        {"name": topic, "customerID": user["_id"]},
+        {"$set": {"samplingInterval": offset}}
     )
     if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
         update.message.reply_text(
@@ -108,7 +108,8 @@ def change_trigger_command(update: Update, context: CallbackContext) -> None:
     topic = context.args[0]
     trigger = int(context.args[1])
     topics.update_one(
-        {"name": topic, "customerID": user["_id"]}, {"$set": {"triggerCond": trigger}}
+        {"name": topic, "customerID": user["_id"]},
+        {"$set": {"triggerCond": trigger}}
     )
     if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
         update.message.reply_text(
@@ -182,12 +183,15 @@ def main():
     dispatcher.add_handler(CommandHandler("changetrigger", change_trigger_command))
     dispatcher.add_handler(CommandHandler("avgtemp", average_temperature_command))
     dispatcher.add_handler(CommandHandler("avghum", average_humidity_command))
+
     commands = [
         BotCommand("start", "Starts the bot"),
         BotCommand("help", "Shows a list of all possible commands"),
         BotCommand("topics", "Shows every topic"),
-        BotCommand("changeoffset", "Changes the smapling interval of the topic"),
-        BotCommand("changetrigger", "Changes the threshold of the topic")]
+        BotCommand("changeoffset", "Changes the sapling interval of the topic"),
+        BotCommand("changetrigger", "Changes the threshold of the topic"),
+        BotCommand("avgtemp", "Returns the temperature of a topic"),
+        BotCommand("avghumidity", "Returns the temperature of a topic")]
     dispatcher.bot.set_my_commands(commands)
 
     # dispatcher.add_error_handler(error)
