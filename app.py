@@ -1,6 +1,7 @@
 from telegram.ext import *
 from telegram import Update, ForceReply, ParseMode, BotCommand
 import pymongo
+# import numpy as np
 import logging
 import datetime
 import os
@@ -86,19 +87,19 @@ def topics_command(update: Update, context: CallbackContext) -> None:
 
 
 def change_offset_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /changeOffset is issued."""
-    chat_id = update.message.chat.id
+    """Send a message when the command /changeoffset is issued."""
+    # chat_id = update.message.chat.id
     if len(context.args) != 2:
         update.message.reply_text("There should be exactly two arguments to the command /changeOffset")
         return
 
-    user = customers.find_one({"chatID": chat_id})
+    # user = customers.find_one({"chatID": chat_id})
     topic = context.args[0]
     offset = int(context.args[1])
     topics.update_one(
-        {"name": topic, "customerID": user["_id"]}, {"$set": {"samplingInterval": offset}}
+        {"name": topic}, {"$set": {"samplingInterval": offset}}
     )
-    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+    if topics.count_documents({"name": topic}) == 0:
         update.message.reply_text(
             "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
     else:
@@ -107,19 +108,19 @@ def change_offset_command(update: Update, context: CallbackContext) -> None:
 
 
 def change_trigger_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /changeTrigger is issued."""
-    chat = update.message.chat.id
+    """Send a message when the command /changetrigger is issued."""
+    # chat = update.message.chat.id
     if len(context.args) != 2:
         update.message.reply_text("There should be exactly two arguments to the /changeTrigger command")
         return
 
-    user = customers.find_one({"chatID": chat})
+    # user = customers.find_one({"chatID": chat})
     topic = context.args[0]
     trigger = int(context.args[1])
     topics.update_one(
-        {"name": topic, "customerID": user["_id"]}, {"$set": {"triggerCond": trigger}}
+        {"name": topic}, {"$set": {"triggerCond": trigger}}
     )
-    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+    if topics.count_documents({"name": topic}) == 0:
         update.message.reply_text(
             "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
     else:
@@ -128,23 +129,31 @@ def change_trigger_command(update: Update, context: CallbackContext) -> None:
 
 
 def average_temperature_command(update: Update, context: CallbackContext) -> None:
-    chat = update.message.chat.id
+    """Send a message when the command /changetrigger is issued."""
+    # chat = update.message.chat.id
     if len(context.args) > 2 or len(context.args) < 1:
-        update.message.reply_text("Wrong arguments")
+        update.message.reply_text("Wrong arguments for the /avgtemp command, use /help for more details")
         return
 
-    user = customers.find_one({"chatID": chat})
+    # user = customers.find_one({"chatID": chat})
     topic = context.args[0]
-    user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
+    user_topic = topics.find_one({"name": topic})
     if len(context.args) == 1:
-        date = datetime.date.isoformat(datetime.datetime.now())
-        temperature_records = records.aggregate({
-            "topicID": user_topic["_id"],
-            "date": "$date",
-            "avgtemp": {"$group": {"$avg": "temp.val"}}
-        })
-        update.message.reply_text("Average temperature for today: {0}".format(temperature_records["avgtemp"]))
-    # pass
+        date = datetime.datetime.today().date()
+        out = "today"
+        # date = datetime.datetime(date.year, date.month, date.day, 0, 0, 0)
+    else:
+        date = datetime.datetime.strptime(context.args[1], '%Y-%m-%d').date()
+        out = context.args[1]
+
+    date = datetime.datetime(date.year, date.month, date.day, 0, 0, 0)
+    temperature_records = records.find_one({
+        "topicID": user_topic["_id"],
+        "date": date
+    })
+    t_list = temperature_records["temp"]
+    avg_t = float(sum(temperature['val'] for temperature in t_list)) / len(t_list)
+    update.message.reply_text("Average temperature for {0}: {1}".format(out, avg_t))
 
 
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
