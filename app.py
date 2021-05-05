@@ -200,10 +200,10 @@ def main():
     # dispatcher.add_error_handler(error)
 
     # Start the Bot
-    updater.start_polling()
-    # heroku_name = os.environ.get("HEROKU_APP_NAME")
-    # updater.start_webhook(listen="0.0.0.0", port=port, url_path=token)
-    # updater.bot.set_webhook("https://{0}.herokuapp.com/{1}".format(heroku_name, token))
+    # updater.start_polling()
+    heroku_name = os.environ.get("mcpsbot")
+    updater.start_webhook(listen="0.0.0.0", port=port, url_path=token)
+    updater.bot.set_webhook("https://{0}.herokuapp.com/{1}".format(heroku_name, token))
     updater.idle()
 
 
