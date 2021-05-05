@@ -173,7 +173,7 @@ def average_humidity_command(update: Update, context: CallbackContext) -> None:
 
 
 def main():
-    token = "1794376012:AAFqfMrJD-axHouu8feNxbaixDgP9i4M7LI"
+    token = os.environ.get("token")
     port = int(os.environ.get("PORT", "8443"))
     updater = Updater(token)
 
@@ -201,7 +201,7 @@ def main():
 
     # Start the Bot
     # updater.start_polling()
-    heroku_name = os.environ.get("mcpsbot")
+    heroku_name = os.environ.get("bot_name")
     updater.start_webhook(listen="0.0.0.0", port=port, url_path=token,
                           webhook_url="https://{0}.herokuapp.com/{1}".format(heroku_name, token))
     # updater.bot.set_webhook("https://{0}.herokuapp.com/{1}".format(heroku_name, token))
