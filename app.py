@@ -1,13 +1,14 @@
 from telegram.ext import *
 from telegram import Update, ForceReply, ParseMode, BotCommand
 import pymongo
+import numpy as np
 import logging
 import datetime
 import os
 
 _client = pymongo.MongoClient(
-    "mongodb+srv://nikodallanoce:pieroangela@clustertest.zbdu9.mongodb.net/Mqttemp?retryWrites=true&w=majority")
-_db = _client["Mqttemp"]
+    "mongodb+srv://nikodallanoce:pieroangela@clustertest.zbdu9.mongodb.net/Mqttempv2?retryWrites=true&w=majority")
+_db = _client["Mqttempv2"]
 customers = _db["Customers"]
 topics = _db["Topics"]
 records = _db["Records"]
@@ -158,7 +159,8 @@ def average_temperature_command(update: Update, context: CallbackContext) -> Non
     temperature_records, out = __commands_setup(update, context, "temperature")
     t_list = temperature_records["temp"]
     avg_t = float(sum(temperature['val'] for temperature in t_list)) / len(t_list)
-    update.message.reply_text("*Average temperature for {0}:*\n {1}".format(out, avg_t), parse_mode=ParseMode.MARKDOWN)
+    update.message.reply_text("*Average temperature for {0}:*\n {1}".format(out, np.round(avg_t, 2)),
+                              parse_mode=ParseMode.MARKDOWN)
 
 
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
@@ -166,7 +168,8 @@ def average_humidity_command(update: Update, context: CallbackContext) -> None:
     humidity_records, out = __commands_setup(update, context, "humidity")
     h_list = humidity_records["hum"]
     avg_h = float(sum(humidity['val'] for humidity in h_list)) / len(h_list)
-    update.message.reply_text("*Average humidity for {0}:*\n {1}".format(out, avg_h), parse_mode=ParseMode.MARKDOWN)
+    update.message.reply_text("*Average humidity for {0}:*\n {1}".format(out, np.round(avg_h)),
+                              parse_mode=ParseMode.MARKDOWN)
 
 
 def main():
