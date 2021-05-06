@@ -235,8 +235,8 @@ def main():
         BotCommand("help", "Shows a list of all possible commands"),
         BotCommand("user", "Shows informations about you"),
         BotCommand("topics", "Shows every topic"),
-        BotCommand("changeoffset", "Changes the sampling interval of the topic"),
-        BotCommand("changetrigger", "Changes the threshold of the topic"),
+        BotCommand("changeoffset", "Changes the sampling interval"),
+        BotCommand("changetrigger", "Changes the threshold"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
         BotCommand("avghum", "Returns the humidity of a topic")]
     dispatcher.bot.set_my_commands(commands)
