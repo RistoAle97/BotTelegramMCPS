@@ -209,7 +209,7 @@ def user_command(update: Update, _: CallbackContext) -> None:
     chat = update.message.chat.id
     user = customers.find_one({"chatID": chat})
     if not user:
-        update.message.reply_text("You're not registered in our system")
+        update.message.reply_text("You're not registered in our system, your chat id is {0}".format(chat))
     else:
         update.message.reply_text("You're registered as user {0}, your chat id is {1}".format(user["name"], chat))
 
