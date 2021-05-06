@@ -54,7 +54,7 @@ def topics_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /topics is issued."""
     chat_id = update.message.chat.id
     if len(context.args) > 1:
-        update.message.reply_text("Hai inserito troppi argomenti al comando /topics")
+        update.message.reply_text("You have inserted too many arguments to the commmand /topics")
         return
 
     user = customers.find_one({"chatID": chat_id})
@@ -67,9 +67,9 @@ def topics_command(update: Update, context: CallbackContext) -> None:
         user_topics = topics.find({"customerID": user["_id"]})
 
     if not user:
-        update.message.reply_text("Non sei registrato nel sistema")
+        update.message.reply_text("You're not registered in our system")
     elif topics.count_documents({"customerID": user["_id"]}) == 0:
-        update.message.reply_text("Non esiste alcun topic associato col tuo nome/chat: {0}".format(user["name"]))
+        update.message.reply_text("There's no topic linked to your name /chat: {0}".format(user["name"]))
     else:
         out = "*List of the topics you're subscribed to as {0}:*\n".format(user["name"])
         for topic in user_topics:
