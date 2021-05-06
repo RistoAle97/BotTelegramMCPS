@@ -6,8 +6,8 @@ import logging
 import datetime
 import os
 
-_client = pymongo.MongoClient(
-    "mongodb+srv://nikodallanoce:pieroangela@clustertest.zbdu9.mongodb.net/Mqttempv2?retryWrites=true&w=majority")
+mongoclient = os.environ.get("mongoclient")
+_client = pymongo.MongoClient(mongoclient)
 _db = _client["Mqttempv2"]
 customers = _db["Customers"]
 topics = _db["Topics"]
