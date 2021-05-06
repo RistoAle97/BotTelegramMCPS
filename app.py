@@ -71,7 +71,8 @@ def topics_command(update: Update, context: CallbackContext) -> None:
     else:
         out = "*List of the topics you're subscribed to as {0}:*\n".format(user["name"])
         for topic in user_topics:
-            out += "Topic: {0}, Offset: {1}\n".format(topic["name"], topic["samplingInterval"])
+            out += "Topic: {0}, Offset: {1}, Threshold: {2}\n".format(topic["name"],
+                                                                      topic["samplingInterval"], topic["triggerCond"])
 
         update.message.reply_text(out, parse_mode=ParseMode.MARKDOWN)
 
@@ -170,6 +171,9 @@ def average_humidity_command(update: Update, context: CallbackContext) -> None:
     avg_h = float(sum(humidity['val'] for humidity in h_list)) / len(h_list)
     update.message.reply_text("*Average humidity for {0}:*\n {1}".format(out, np.round(avg_h)),
                               parse_mode=ParseMode.MARKDOWN)
+
+# def error(update, context: CallbackContext) -> None:
+    # logger.warning("".format(update, context))
 
 
 def main():
