@@ -158,6 +158,10 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
 def average_temperature_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avgtemp is issued."""
     temperature_records, out = __commands_setup(update, context, "temperature")
+    if not temperature_records:
+        update.message.reply_text("There are no records for {0} temperature".format(out))
+        return
+
     t_list = temperature_records["temp"]
     avg_t = float(sum(temperature['val'] for temperature in t_list)) / len(t_list)
     update.message.reply_text("*Average temperature for {0}:*\n {1}".format(out, np.round(avg_t, 2)),
@@ -199,7 +203,7 @@ def main():
         BotCommand("changeoffset", "Changes the sampling interval of the topic"),
         BotCommand("changetrigger", "Changes the threshold of the topic"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
-        BotCommand("avghumidity", "Returns the humidity of a topic")]
+        BotCommand("avghum", "Returns the humidity of a topic")]
     dispatcher.bot.set_my_commands(commands)
 
     dispatcher.add_error_handler(error)
