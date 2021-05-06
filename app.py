@@ -58,6 +58,10 @@ def topics_command(update: Update, context: CallbackContext) -> None:
         return
 
     user = customers.find_one({"chatID": chat_id})
+    if not user:
+        update.message.reply_text("You're not registered in our system")
+        return
+
     if context.args:
         user_topics = topics.find(
             {"name": {'$regex': context.args[0] + '/'},
@@ -66,9 +70,7 @@ def topics_command(update: Update, context: CallbackContext) -> None:
     else:
         user_topics = topics.find({"customerID": user["_id"]})
 
-    if not user:
-        update.message.reply_text("You're not registered in our system")
-    elif topics.count_documents({"customerID": user["_id"]}) == 0:
+    if topics.count_documents({"customerID": user["_id"]}) == 0:
         update.message.reply_text("There's no topic linked to your name /chat: {0}".format(user["name"]))
     else:
         out = "*List of the topics you're subscribed to as {0}:*\n".format(user["name"])
