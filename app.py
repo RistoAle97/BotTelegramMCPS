@@ -171,6 +171,10 @@ def average_temperature_command(update: Update, context: CallbackContext) -> Non
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avghum is issued."""
     humidity_records, out = __commands_setup(update, context, "humidity")
+    if not humidity_records:
+        update.message.reply_text("There are no records for {0} humidity".format(out))
+        return
+
     h_list = humidity_records["hum"]
     avg_h = float(sum(humidity['val'] for humidity in h_list)) / len(h_list)
     update.message.reply_text("*Average humidity for {0}:*\n {1}".format(out, np.round(avg_h)),
