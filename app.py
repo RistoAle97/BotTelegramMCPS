@@ -36,13 +36,13 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "Shows a list of all possible commands\n\n"
         "*/topics [topic]*\n"
         "Shows every topic you're subscribed to (if no argument is passed)\n\n"
-        "*/changeOffset topic offset*\n"
+        "*/changeoffset topic offset*\n"
         "Changes the smapling interval of the desired topic (you're subscribed to) with the value *offset*\n\n"
-        "*/changeTrigger topic trigger*\n"
+        "*/changetrigger topic trigger*\n"
         "Changes the trigger condition of the desired topic (you're subscribed to) with the value *trigger*\n\n"
-        "*/avgTemp [year-month-day]*\n"
+        "*/avgtemp topic [year-month-day]*\n"
         "Gives the average temperature of the current day if no argument is passed\n\n"
-        "*/avgTemp [year-month-day]*\n"
+        "*/avghum topic [year-month-day]*\n"
         "Gives the average humidity of the current day if no argument is passed",
         parse_mode=ParseMode.MARKDOWN
     )
@@ -194,7 +194,7 @@ def main():
         BotCommand("changeoffset", "Changes the sapling interval of the topic"),
         BotCommand("changetrigger", "Changes the threshold of the topic"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
-        BotCommand("avghumidity", "Returns the temperature of a topic")]
+        BotCommand("avghumidity", "Returns the humidity of a topic")]
     dispatcher.bot.set_my_commands(commands)
 
     # dispatcher.add_error_handler(error)
@@ -204,7 +204,6 @@ def main():
     heroku_name = os.environ.get("bot_name")
     updater.start_webhook(listen="0.0.0.0", port=port, url_path=token,
                           webhook_url="https://{0}.herokuapp.com/{1}".format(heroku_name, token))
-    # updater.bot.set_webhook("https://{0}.herokuapp.com/{1}".format(heroku_name, token))
     updater.idle()
 
 

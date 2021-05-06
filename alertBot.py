@@ -12,5 +12,4 @@ def main(chat, alert):
 
 
 if __name__ == "__main__":
-    # print(sys.argv)
     main(sys.argv[1], str(sys.argv[2]))
