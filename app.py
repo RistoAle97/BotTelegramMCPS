@@ -83,10 +83,14 @@ def change_offset_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /changeoffset is issued."""
     chat_id = update.message.chat.id
     if len(context.args) != 2:
-        update.message.reply_text("There should be exactly two arguments to the command /changeOffset")
+        update.message.reply_text("There should be exactly two arguments to the command /changeoffset")
         return
 
     user = customers.find_one({"chatID": chat_id})
+    if not user:
+        update.message.reply_text("You're not registered in our system")
+        return
+
     topic = context.args[0]
     offset = int(context.args[1])
     topics.update_one(
@@ -105,10 +109,14 @@ def change_trigger_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /changetrigger is issued."""
     chat = update.message.chat.id
     if len(context.args) != 2:
-        update.message.reply_text("There should be exactly two arguments to the /changeTrigger command")
+        update.message.reply_text("There should be exactly two arguments to the /changetrigger command")
         return
 
     user = customers.find_one({"chatID": chat})
+    if not user:
+        update.message.reply_text("You're not registered in our system")
+        return
+
     topic = context.args[0]
     trigger = int(context.args[1])
     topics.update_one(
@@ -135,6 +143,10 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
         return
 
     user = customers.find_one({"chatID": chat})
+    if not user:
+        update.message.reply_text("You're not registered in our system")
+        return
+
     topic = context.args[0]
     user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
     if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
