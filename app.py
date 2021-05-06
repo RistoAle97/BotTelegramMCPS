@@ -34,6 +34,8 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "*List of commands:*\n\n"
         "*/help*\n"
         "Shows a list of all possible commands\n\n"
+        "*/user*\n"
+        "Shows informations about you\n\n"
         "*/topics [topic]*\n"
         "Shows every topic you're subscribed to (if no argument is passed)\n\n"
         "*/changeoffset topic offset*\n"
@@ -185,6 +187,15 @@ def error(update, context: CallbackContext) -> None:
     logger.warning("Update {0} caused error {1}".format(update, context.error))
 
 
+def user_command(update: Update, context: CallbackContext) -> None:
+    chat = update.message.chat.id
+    user = customers.find_one({"chatID": chat})
+    if not user:
+        update.message.reply_text("You're not registered in our system")
+    else:
+        update.message.reply_text( "You're registered as user {0}, your chat id is {1}".format(user["name"], chat))
+
+
 def main():
     token = os.environ.get("token")
     port = int(os.environ.get("PORT", "8443"))
@@ -199,6 +210,7 @@ def main():
     dispatcher.add_handler(CommandHandler("changetrigger", change_trigger_command))
     dispatcher.add_handler(CommandHandler("avgtemp", average_temperature_command))
     dispatcher.add_handler(CommandHandler("avghum", average_humidity_command))
+    dispatcher.add_handler(CommandHandler("user", user_command))
 
     commands = [
         BotCommand("start", "Starts the bot"),
