@@ -172,8 +172,9 @@ def average_humidity_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("*Average humidity for {0}:*\n {1}".format(out, np.round(avg_h)),
                               parse_mode=ParseMode.MARKDOWN)
 
-# def error(update, context: CallbackContext) -> None:
-    # logger.warning("".format(update, context))
+
+def error(update, context: CallbackContext) -> None:
+    logger.warning("Update {0} caused error {1}".format(update, context.error))
 
 
 def main():
@@ -195,13 +196,13 @@ def main():
         BotCommand("start", "Starts the bot"),
         BotCommand("help", "Shows a list of all possible commands"),
         BotCommand("topics", "Shows every topic"),
-        BotCommand("changeoffset", "Changes the sapling interval of the topic"),
+        BotCommand("changeoffset", "Changes the sampling interval of the topic"),
         BotCommand("changetrigger", "Changes the threshold of the topic"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
         BotCommand("avghumidity", "Returns the humidity of a topic")]
     dispatcher.bot.set_my_commands(commands)
 
-    # dispatcher.add_error_handler(error)
+    dispatcher.add_error_handler(error)
 
     # Start the Bot
     # updater.start_polling()
