@@ -188,6 +188,9 @@ def average_temperature_command(update: Update, context: CallbackContext) -> Non
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avghum is issued."""
     humidity_records, out = __commands_setup(update, context, "humidity")
+    if not out:
+        return
+
     if not humidity_records:
         update.message.reply_text("There are no records for {0} humidity".format(out))
         return
