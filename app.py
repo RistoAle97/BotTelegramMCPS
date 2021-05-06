@@ -187,13 +187,13 @@ def error(update, context: CallbackContext) -> None:
     logger.warning("Update {0} caused error {1}".format(update, context.error))
 
 
-def user_command(update: Update, context: CallbackContext) -> None:
+def user_command(update: Update, _: CallbackContext) -> None:
     chat = update.message.chat.id
     user = customers.find_one({"chatID": chat})
     if not user:
         update.message.reply_text("You're not registered in our system")
     else:
-        update.message.reply_text( "You're registered as user {0}, your chat id is {1}".format(user["name"], chat))
+        update.message.reply_text("You're registered as user {0}, your chat id is {1}".format(user["name"], chat))
 
 
 def main():
@@ -215,6 +215,7 @@ def main():
     commands = [
         BotCommand("start", "Starts the bot"),
         BotCommand("help", "Shows a list of all possible commands"),
+        BotCommand("user", "Shows informations about you"),
         BotCommand("topics", "Shows every topic"),
         BotCommand("changeoffset", "Changes the sampling interval of the topic"),
         BotCommand("changetrigger", "Changes the threshold of the topic"),
