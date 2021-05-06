@@ -136,7 +136,7 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
     if record_type == "temperature":
         command = "/avgtemp"
     else:
-        command = "avghum"
+        command = "/avghum"
 
     if len(context.args) > 2 or len(context.args) < 1:
         update.message.reply_text("Wrong arguments for the {0} command, use /help for more details".format(command))
@@ -149,7 +149,8 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
 
     topic = context.args[0]
     user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
-    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+    # if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+    if not user_topic:
         update.message.reply_text(
             "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
         return
