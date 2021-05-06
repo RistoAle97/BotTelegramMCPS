@@ -140,20 +140,19 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
 
     if len(context.args) > 2 or len(context.args) < 1:
         update.message.reply_text("Wrong arguments for the {0} command, use /help for more details".format(command))
-        return
+        return None, None
 
     user = customers.find_one({"chatID": chat})
     if not user:
         update.message.reply_text("You're not registered in our system")
-        return
+        return None, None
 
     topic = context.args[0]
     user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
-    # if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
     if not user_topic:
         update.message.reply_text(
             "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
-        return
+        return None, None
 
     if len(context.args) == 1:
         date = datetime.datetime.today().date()
