@@ -172,6 +172,9 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
 def average_temperature_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avgtemp is issued."""
     temperature_records, out = __commands_setup(update, context, "temperature")
+    if not out:
+        return
+
     if not temperature_records:
         update.message.reply_text("There are no records for {0} temperature".format(out))
         return
