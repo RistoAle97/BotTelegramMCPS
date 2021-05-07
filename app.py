@@ -270,7 +270,9 @@ def main():
         BotCommand("changeoffset", "Changes the sampling interval"),
         BotCommand("changetrigger", "Changes the threshold"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
-        BotCommand("avghum", "Returns the humidity of a topic"), BotCommand]
+        BotCommand("avghum", "Returns the humidity of a topic"),
+        BotCommand("lasttemp", "Returns the last recorded temperature of a topic"),
+        BotCommand("lasthum", "Returns the last recorded humidity of a topic")]
     dispatcher.bot.set_my_commands(commands)
 
     dispatcher.add_error_handler(error)
