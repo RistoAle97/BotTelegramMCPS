@@ -33,29 +33,29 @@ def help_command(update: Update, _: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     update.message.reply_text(
         "*Utils:*\n"
-        "/help \- "
+        "/help - "
         "Shows a list of all possible commands\n"
-        "/user \- "
+        "/user - "
         "Shows informations about you\n"
-        "/topics [_topic_] \- "
+        "/topics [*topic*] - "
         "Shows every topic you're subscribed to (if no argument is passed)\n"
         "\n*Modify Parameters*\n"
-        "/changeoffset _topic offset_ \- "
+        "/changeoffset *topic offset* - "
         "Changes the smapling interval of the desired topic (you're subscribed to)\n"
-        "/changetrigger _topic_ _trigger_ - "
+        "/changetrigger *topic trigger* - "
         "Changes the trigger condition of the desired topic (you're subscribed to)\n"
-        "/setalert _topic offset_ \- "
+        "/setalert *topic offset* - "
         "Changes the alert offset of the desired topic (you're subscribed to)\n"
         "\n*Return Records*\n"
-        "/avgtemp _topic_ [_year-month-day_] \- "
+        "/avgtemp *topic* [*year-month-day*] - "
         "Gives the average temperature of the current day if no argument is passed\n"
-        "/avghum _topic_ [_year-month-day_] \- "
+        "/avghum *topic* [*year-month-day*] - "
         "Gives the average humidity of the current day if no argument is passed\n"
-        "/lasttemp _topic_ [_year-month-day_] \- "
+        "/lasttemp *topic* [*year-month-day*] - "
         "Returns the last recorded temperature of the current day if no argument is passed\n"
-        "/lasthum _topic_ [_year-month-day_] \- "
+        "/lasthum *topic* [*year-month-day*] - "
         "Returns the last recorded humidity of the current day if no argument is passed\n",
-        parse_mode=ParseMode.MARKDOWN_V2
+        parse_mode=ParseMode.MARKDOWN
     )
 
 
