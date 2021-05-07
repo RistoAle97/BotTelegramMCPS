@@ -37,7 +37,7 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "Shows a list of all possible commands\n"
         "/user - "
         "Shows informations about you\n"
-        "/topics [*topic*] - "
+        "/topics *topic* - "
         "Shows every topic you're subscribed to (if no argument is passed)\n"
         "\n*Modify Parameters*\n"
         "/changeoffset *topic offset* - "
@@ -47,13 +47,13 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "/setalert *topic offset* - "
         "Changes the alert offset of the desired topic (you're subscribed to)\n"
         "\n*Return Records*\n"
-        "/avgtemp *topic* [*year-month-day*] - "
+        "/avgtemp *topic year-month-day* - "
         "Gives the average temperature of the current day if no argument is passed\n"
-        "/avghum *topic* [*year-month-day*] - "
+        "/avghum *topic year-month-day* - "
         "Gives the average humidity of the current day if no argument is passed\n"
-        "/lasttemp *topic* [*year-month-day*] - "
+        "/lasttemp *topic year-month-day* - "
         "Returns the last recorded temperature of the current day if no argument is passed\n"
-        "/lasthum *topic* [*year-month-day*] - "
+        "/lasthum *topic year-month-day* - "
         "Returns the last recorded humidity of the current day if no argument is passed\n",
         parse_mode=ParseMode.MARKDOWN
     )
@@ -241,7 +241,7 @@ def last_temperature_command(update: Update, context: CallbackContext) -> None:
         return
 
     last_temp, date = __last_relevation_setup(temperature_records, "temp")
-    update.message.reply_text("*Last recorded temperature for {0}:*\n {1}, recorded at {2}"
+    update.message.reply_text("*Last recorded temperature for {0}:*\n{1}, recorded at {2}"
                               .format(out, last_temp, date), parse_mode=ParseMode.MARKDOWN)
 
 
@@ -256,7 +256,7 @@ def last_humidity_command(update: Update, context: CallbackContext) -> None:
         return
 
     last_hum, date = __last_relevation_setup(humidity_records, "hum")
-    update.message.reply_text("*Last recorded humidity for {0}:*\n {1}, recorded at {2}"
+    update.message.reply_text("*Last recorded humidity for {0}:*\n{1}, recorded at {2}"
                               .format(out, last_hum, date), parse_mode=ParseMode.MARKDOWN)
 
 
