@@ -4,6 +4,7 @@ import pymongo
 import numpy as np
 import logging
 import datetime
+import time
 import os
 
 mongoclient = os.environ.get("mongoclient")
@@ -133,15 +134,11 @@ def change_trigger_command(update: Update, context: CallbackContext) -> None:
             "The topic {0} trigger condition was updated successfully".format(topic))
 
 
-def __commands_setup(update: Update, context: CallbackContext, record_type: str):
+def __commands_setup(update: Update, context: CallbackContext, command_type: str):
     chat = update.message.chat.id
-    if record_type == "temperature":
-        command = "/avgtemp"
-    else:
-        command = "/avghum"
-
     if len(context.args) > 2 or len(context.args) < 1:
-        update.message.reply_text("Wrong arguments for the {0} command, use /help for more details".format(command))
+        update.message.reply_text("Wrong arguments for the {0} command, use /help for more details".
+                                  format(command_type))
         return None, None
 
     user = customers.find_one({"chatID": chat})
@@ -173,7 +170,7 @@ def __commands_setup(update: Update, context: CallbackContext, record_type: str)
 
 def average_temperature_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avgtemp is issued."""
-    temperature_records, out = __commands_setup(update, context, "temperature")
+    temperature_records, out = __commands_setup(update, context, "/avgtemp")
     if not out:
         return
 
@@ -189,7 +186,7 @@ def average_temperature_command(update: Update, context: CallbackContext) -> Non
 
 def average_humidity_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /avghum is issued."""
-    humidity_records, out = __commands_setup(update, context, "humidity")
+    humidity_records, out = __commands_setup(update, context, "/avghum")
     if not out:
         return
 
@@ -216,6 +213,37 @@ def user_command(update: Update, _: CallbackContext) -> None:
         update.message.reply_text("You're registered as user {0}, your chat id is {1}".format(user["name"], chat))
 
 
+def last_temperature_command(update: Update, context: CallbackContext) -> None:
+    temperature_records, out = __commands_setup(update, context, "/lasttemp")
+    if not out:
+        return
+
+    if not temperature_records:
+        update.message.reply_text("There are no records for {0} temperature".format(out))
+        return
+
+    t_list = temperature_records["temp"]
+    last_temp = t_list[-1]
+    timestamp = last_temp["time"]
+    # date = time.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(timestamp))
+    update.message.reply_text("*Last recorded temperature for {0}:*\n {1}, recorded at {2}"
+                              .format(out, last_temp, timestamp), parse_mode=ParseMode.MARKDOWN)
+
+
+def last_humidity_command(update: Update, context: CallbackContext) -> None:
+    humidity_records, out = __commands_setup(update, context, "/lasthum")
+    if not out:
+        return
+
+    if not humidity_records:
+        update.message.reply_text("There are no records for {0} temperature".format(out))
+        return
+
+    h_list = humidity_records["hum"]
+    update.message.reply_text("*Last recorded humidity for {0}:*\n {1}".format(out, h_list[-1]),
+                              parse_mode=ParseMode.MARKDOWN)
+
+
 def main():
     token = os.environ.get("token")
     port = int(os.environ.get("PORT", "8443"))
@@ -231,6 +259,8 @@ def main():
     dispatcher.add_handler(CommandHandler("avgtemp", average_temperature_command))
     dispatcher.add_handler(CommandHandler("avghum", average_humidity_command))
     dispatcher.add_handler(CommandHandler("user", user_command))
+    dispatcher.add_handler(CommandHandler("lasttemp", last_temperature_command))
+    dispatcher.add_handler(CommandHandler("lastehum", last_humidity_command))
 
     commands = [
         BotCommand("start", "Starts the bot"),
@@ -240,7 +270,7 @@ def main():
         BotCommand("changeoffset", "Changes the sampling interval"),
         BotCommand("changetrigger", "Changes the threshold"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
-        BotCommand("avghum", "Returns the humidity of a topic")]
+        BotCommand("avghum", "Returns the humidity of a topic"), BotCommand]
     dispatcher.bot.set_my_commands(commands)
 
     dispatcher.add_error_handler(error)
