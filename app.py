@@ -225,7 +225,7 @@ def last_temperature_command(update: Update, context: CallbackContext) -> None:
     t_list = temperature_records["temp"]
     last_temp = t_list[-1]
     timestamp = last_temp["time"]
-    date = datetime.datetime.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(int(timestamp)))
+    date = datetime.datetime.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(int(timestamp["t"])))
     update.message.reply_text("*Last recorded temperature for {0}:*\n {1}, recorded at {2}"
                               .format(out, last_temp["val"], date), parse_mode=ParseMode.MARKDOWN)
 
@@ -240,8 +240,11 @@ def last_humidity_command(update: Update, context: CallbackContext) -> None:
         return
 
     h_list = humidity_records["hum"]
-    update.message.reply_text("*Last recorded humidity for {0}:*\n {1}".format(out, h_list[-1]),
-                              parse_mode=ParseMode.MARKDOWN)
+    last_hum = h_list[-1]
+    timestamp = last_hum["time"]
+    date = datetime.datetime.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(int(timestamp["t"])))
+    update.message.reply_text("*Last recorded humidity for {0}:*\n {1}, recorded at {2}"
+                              .format(out, last_hum["val"], date), parse_mode=ParseMode.MARKDOWN)
 
 
 def main():
