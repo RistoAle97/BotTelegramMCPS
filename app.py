@@ -35,7 +35,7 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "*Utils:*\n"
         "/help - "
         "Shows a list of all possible commands\n"
-        "user - "
+        "/user - "
         "Shows informations about you\n"
         "/topics [_topic_] - "
         "Shows every topic you're subscribed to (if no argument is passed)\n"
@@ -55,7 +55,7 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "Returns the last recorded temperature of the current day if no argument is passed\n"
         "/lasthum _topic_ [_year-month-day_] - "
         "Returns the last recorded humidity of the current day if no argument is passed\n",
-        parse_mode=ParseMode.MARKDOWN
+        parse_mode=ParseMode.MARKDOWN_V2
     )
 
 
@@ -222,6 +222,14 @@ def user_command(update: Update, _: CallbackContext) -> None:
         update.message.reply_text("You're registered as user {0}, your chat id is {1}".format(user["name"], chat))
 
 
+def __last_relevation_setup(relevations_records, command_type: str):
+    records_list = relevations_records[command_type]
+    last_record = records_list[-1]
+    timestamp = last_record("time")
+    date = datetime.datetime.fromtimestamp(timestamp.inc)
+    return last_record["val"], date
+
+
 def last_temperature_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /lasttemp is issued."""
     temperature_records, out = __commands_setup(update, context, "/lasttemp")
@@ -232,12 +240,9 @@ def last_temperature_command(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("There are no records for {0} temperature".format(out))
         return
 
-    t_list = temperature_records["temp"]
-    last_temp = t_list[-1]
-    timestamp = last_temp["time"]
-    date = datetime.datetime.fromtimestamp(timestamp.inc)
+    last_temp, date = __last_relevation_setup(temperature_records, "temp")
     update.message.reply_text("*Last recorded temperature for {0}:*\n {1}, recorded at {2}"
-                              .format(out, last_temp["val"], date), parse_mode=ParseMode.MARKDOWN)
+                              .format(out, last_temp, date), parse_mode=ParseMode.MARKDOWN)
 
 
 def last_humidity_command(update: Update, context: CallbackContext) -> None:
@@ -247,15 +252,12 @@ def last_humidity_command(update: Update, context: CallbackContext) -> None:
         return
 
     if not humidity_records:
-        update.message.reply_text("There are no records for {0} temperature".format(out))
+        update.message.reply_text("There are no records for {0} humidity".format(out))
         return
 
-    h_list = humidity_records["hum"]
-    last_hum = h_list[-1]
-    timestamp = last_hum["time"]
-    date = datetime.datetime.fromtimestamp(timestamp.inc)
+    last_hum, date = __last_relevation_setup(humidity_records, "hum")
     update.message.reply_text("*Last recorded humidity for {0}:*\n {1}, recorded at {2}"
-                              .format(out, last_hum["val"], date), parse_mode=ParseMode.MARKDOWN)
+                              .format(out, last_hum, date), parse_mode=ParseMode.MARKDOWN)
 
 
 def change_alert_offset(update: Update, context: CallbackContext) -> None:
