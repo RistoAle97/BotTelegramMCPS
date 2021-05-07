@@ -1,12 +1,12 @@
 # BotTelegramMCPS
-Bot Telegram per il progetto di MCPS, https://t.me/MCPSbot.
-##List of commands:
-###Utils:
+Telegram bot for the MCPS project, https://t.me/MCPSbot.
+## List of commands:
+### Utils:
 - /help - Shows a list of all possible commands
 - /user - Shows informations about you
 - /topics topic - Shows every topic you're subscribed to (if no argument is passed)
 
-###Modify Parameters
+### Modify Parameters
 - /changeoffset topic offset - Changes the smapling interval of the desired topic (you're subscribed to)
 - /changetrigger topic trigger - Changes the trigger condition of the desired topic (you're subscribed to)
 - /setalert topic offset - Changes the alert offset of the desired topic (you're subscribed to)
