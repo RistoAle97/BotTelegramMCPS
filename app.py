@@ -225,7 +225,7 @@ def user_command(update: Update, _: CallbackContext) -> None:
 def __last_relevation_setup(relevations_records, command_type: str):
     records_list = relevations_records[command_type]
     last_record = records_list[-1]
-    timestamp = last_record("time")
+    timestamp = last_record["time"]
     date = datetime.datetime.fromtimestamp(timestamp.inc)
     return last_record["val"], date
 
