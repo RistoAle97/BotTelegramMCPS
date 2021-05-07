@@ -4,7 +4,6 @@ import pymongo
 import numpy as np
 import logging
 import datetime
-import time
 import os
 
 mongoclient = os.environ.get("mongoclient")
@@ -13,6 +12,7 @@ _db = _client["Mqttempv2"]
 customers = _db["Customers"]
 topics = _db["Topics"]
 records = _db["Records"]
+alerts = _db["Alerts"]
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -32,21 +32,29 @@ def start_command(update: Update, _: CallbackContext) -> None:
 def help_command(update: Update, _: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     update.message.reply_text(
-        "*List of commands:*\n\n"
-        "*/help*\n"
-        "Shows a list of all possible commands\n\n"
-        "*/user*\n"
-        "Shows informations about you\n\n"
-        "*/topics [topic]*\n"
-        "Shows every topic you're subscribed to (if no argument is passed)\n\n"
-        "*/changeoffset topic offset*\n"
-        "Changes the smapling interval of the desired topic (you're subscribed to) with the value *offset*\n\n"
-        "*/changetrigger topic trigger*\n"
-        "Changes the trigger condition of the desired topic (you're subscribed to) with the value *trigger*\n\n"
-        "*/avgtemp topic [year-month-day]*\n"
-        "Gives the average temperature of the current day if no argument is passed\n\n"
-        "*/avghum topic [year-month-day]*\n"
-        "Gives the average humidity of the current day if no argument is passed",
+        "*Utils:*\n"
+        "/help - "
+        "Shows a list of all possible commands\n"
+        "user - "
+        "Shows informations about you\n"
+        "/topics [_topic_] - "
+        "Shows every topic you're subscribed to (if no argument is passed)\n"
+        "\n*Modify Parameters*\n"
+        "/changeoffset _topic_ _offset_ - "
+        "Changes the smapling interval of the desired topic (you're subscribed to)\n"
+        "/changetrigger _topic_ _trigger_ - "
+        "Changes the trigger condition of the desired topic (you're subscribed to)\n"
+        "/setalert _topic_ _offset_ - "
+        "Changes the alert offset of the desired topic (you're subscribed to)\n"
+        "\n*Return Records*\n"
+        "/avgtemp _topic_ [_year-month-day_] - "
+        "Gives the average temperature of the current day if no argument is passed\n"
+        "/avghum _topic_ [_year-month-day_] - "
+        "Gives the average humidity of the current day if no argument is passed\n"
+        "/lasttemp _topic_ [_year-month-day_] - "
+        "Returns the last recorded temperature of the current day if no argument is passed\n"
+        "/lasthum _topic_ [_year-month-day_] - "
+        "Returns the last recorded humidity of the current day if no argument is passed\n",
         parse_mode=ParseMode.MARKDOWN
     )
 
@@ -96,14 +104,14 @@ def change_offset_command(update: Update, context: CallbackContext) -> None:
 
     topic = context.args[0]
     offset = int(context.args[1])
-    topics.update_one(
-        {"name": topic, "customerID": user["_id"]},
-        {"$set": {"samplingInterval": offset}}
-    )
     if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
         update.message.reply_text(
             "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
     else:
+        topics.update_one(
+            {"name": topic, "customerID": user["_id"]},
+            {"$set": {"samplingInterval": offset}}
+        )
         update.message.reply_text(
             "The topic {0} offset was updated successfully".format(topic))
 
@@ -122,14 +130,14 @@ def change_trigger_command(update: Update, context: CallbackContext) -> None:
 
     topic = context.args[0]
     trigger = int(context.args[1])
-    topics.update_one(
-        {"name": topic, "customerID": user["_id"]},
-        {"$set": {"triggerCond": trigger}}
-    )
     if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
         update.message.reply_text(
             "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
     else:
+        topics.update_one(
+            {"name": topic, "customerID": user["_id"]},
+            {"$set": {"triggerCond": trigger}}
+        )
         update.message.reply_text(
             "The topic {0} trigger condition was updated successfully".format(topic))
 
@@ -205,6 +213,7 @@ def error(update, context: CallbackContext) -> None:
 
 
 def user_command(update: Update, _: CallbackContext) -> None:
+    """Send a message when the command /user is issued."""
     chat = update.message.chat.id
     user = customers.find_one({"chatID": chat})
     if not user:
@@ -214,6 +223,7 @@ def user_command(update: Update, _: CallbackContext) -> None:
 
 
 def last_temperature_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /lasttemp is issued."""
     temperature_records, out = __commands_setup(update, context, "/lasttemp")
     if not out:
         return
@@ -225,13 +235,13 @@ def last_temperature_command(update: Update, context: CallbackContext) -> None:
     t_list = temperature_records["temp"]
     last_temp = t_list[-1]
     timestamp = last_temp["time"]
-    # date = datetime.datetime.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(int(timestamp["t"])))
     date = datetime.datetime.fromtimestamp(timestamp.inc)
     update.message.reply_text("*Last recorded temperature for {0}:*\n {1}, recorded at {2}"
                               .format(out, last_temp["val"], date), parse_mode=ParseMode.MARKDOWN)
 
 
 def last_humidity_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /lasthum is issued."""
     humidity_records, out = __commands_setup(update, context, "/lasthum")
     if not out:
         return
@@ -243,10 +253,36 @@ def last_humidity_command(update: Update, context: CallbackContext) -> None:
     h_list = humidity_records["hum"]
     last_hum = h_list[-1]
     timestamp = last_hum["time"]
-    # date = datetime.datetime.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(int(timestamp["t"])))
     date = datetime.datetime.fromtimestamp(timestamp.inc)
     update.message.reply_text("*Last recorded humidity for {0}:*\n {1}, recorded at {2}"
                               .format(out, last_hum["val"], date), parse_mode=ParseMode.MARKDOWN)
+
+
+def change_alert_offset(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /setalert is issued."""
+    chat_id = update.message.chat.id
+    if len(context.args) != 2:
+        update.message.reply_text("There should be exactly two arguments to the command /setalert")
+        return
+
+    user = customers.find_one({"chatID": chat_id})
+    if not user:
+        update.message.reply_text("You're not registered in our system")
+        return
+
+    topic = context.args[0]
+    offset = int(context.args[1])
+    if topics.count_documents({"name": topic, "customerID": user["_id"]}) == 0:
+        update.message.reply_text(
+            "The topic {0} wasn't found, use /topics to look at the topics you're subscribed to".format(topic))
+    else:
+        user_topic = topics.find_one({"name": topic, "customerID": user["_id"]})
+        alerts.update_one(
+            {"topicID": user_topic["_id"]},
+            {"$set": {"alertOffset": offset}}
+        )
+        update.message.reply_text(
+            "The topic {0} alert offset was updated successfully".format(topic))
 
 
 def main():
@@ -265,7 +301,8 @@ def main():
     dispatcher.add_handler(CommandHandler("avghum", average_humidity_command))
     dispatcher.add_handler(CommandHandler("user", user_command))
     dispatcher.add_handler(CommandHandler("lasttemp", last_temperature_command))
-    dispatcher.add_handler(CommandHandler("lastehum", last_humidity_command))
+    dispatcher.add_handler(CommandHandler("lasthum", last_humidity_command))
+    dispatcher.add_handler(CommandHandler("setalert", change_alert_offset))
 
     commands = [
         BotCommand("start", "Starts the bot"),
@@ -274,6 +311,7 @@ def main():
         BotCommand("topics", "Shows every topic"),
         BotCommand("changeoffset", "Changes the sampling interval"),
         BotCommand("changetrigger", "Changes the threshold"),
+        BotCommand("setalert", "Changes the alert offset"),
         BotCommand("avgtemp", "Returns the temperature of a topic"),
         BotCommand("avghum", "Returns the humidity of a topic"),
         BotCommand("lasttemp", "Returns the last recorded temperature of a topic"),
