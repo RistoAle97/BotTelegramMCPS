@@ -226,7 +226,7 @@ def last_temperature_command(update: Update, context: CallbackContext) -> None:
     last_temp = t_list[-1]
     timestamp = last_temp["time"]
     # date = datetime.datetime.strptime('%Y-%m-%d %H:%M:%S', time.gmtime(int(timestamp["t"])))
-    date = datetime.datetime.fromtimestamp(int(timestamp))
+    date = datetime.datetime.fromtimestamp(int(str(timestamp)))
     update.message.reply_text("*Last recorded temperature for {0}:*\n {1}, recorded at {2}"
                               .format(out, last_temp["val"], date), parse_mode=ParseMode.MARKDOWN)
 
