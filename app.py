@@ -82,12 +82,13 @@ def topics_command(update: Update, context: CallbackContext) -> None:
         n_topics = topics.count_documents({"customerID": user["_id"]})
 
     if n_topics == 0:
-        update.message.reply_text("There's no topic linked to your name/chat: {0}".format(user["name"]))
+        update.message.reply_text("There's no topic {0} linked to your name/chat: {1}"
+                                  .format(context.args[0], user["name"]))
     else:
         out = "*List of the topics you're subscribed to as {0}:*\n".format(user["name"])
         for topic in user_topics:
-            out += "Topic: {0}, Offset: {1}, Threshold: {2}\n".format(topic["name"],
-                                                                      topic["samplingInterval"], topic["triggerCond"])
+            out += "Topic: {0}, Offset: {1}, Threshold: {2}\n"\
+                .format(topic["name"], topic["samplingInterval"], topic["triggerCond"])
 
         update.message.reply_text(out, parse_mode=ParseMode.MARKDOWN)
 
@@ -147,8 +148,8 @@ def change_trigger_command(update: Update, context: CallbackContext) -> None:
 def __commands_setup(update: Update, context: CallbackContext, command_type: str):
     chat = update.message.chat.id
     if len(context.args) > 2 or len(context.args) < 1:
-        update.message.reply_text("Wrong arguments for the {0} command, use /help for more details".
-                                  format(command_type))
+        update.message.reply_text("Wrong arguments for the {0} command, use /help for more details"
+                                  .format(command_type))
         return None, None
 
     user = customers.find_one({"chatID": chat})
