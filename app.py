@@ -41,7 +41,7 @@ def help_command(update: Update, _: CallbackContext) -> None:
         "Shows every topic you're subscribed to (if no argument is passed)\n"
         "\n*Modify Parameters*\n"
         "/changeoffset *topic offset* - "
-        "Changes the smapling interval of the desired topic (you're subscribed to)\n"
+        "Changes the sampling interval of the desired topic (you're subscribed to)\n"
         "/changetrigger *topic trigger* - "
         "Changes the trigger condition of the desired topic (you're subscribed to)\n"
         "/setalert *topic offset* - "
