@@ -76,10 +76,12 @@ def topics_command(update: Update, context: CallbackContext) -> None:
             {"name": {'$regex': context.args[0] + '/'},
              "customerID": user["_id"]}
         )
+        n_topics = topics.count_documents({"name": {'$regex': context.args[0] + '/'}, "customerID": user["_id"]})
     else:
         user_topics = topics.find({"customerID": user["_id"]})
+        n_topics = topics.count_documents({"customerID": user["_id"]})
 
-    if topics.count_documents({"name": {'$regex': context.args[0] + '/'},"customerID": user["_id"]}) == 0:
+    if n_topics == 0:
         update.message.reply_text("There's no topic linked to your name/chat: {0}".format(user["name"]))
     else:
         out = "*List of the topics you're subscribed to as {0}:*\n".format(user["name"])
