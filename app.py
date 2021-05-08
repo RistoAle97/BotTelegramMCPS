@@ -73,10 +73,10 @@ def topics_command(update: Update, context: CallbackContext) -> None:
 
     if context.args:
         user_topics = topics.find(
-            {"name": {'$regex': context.args[0] + '/'},
+            {"name": context.args[0],
              "customerID": user["_id"]}
         )
-        n_topics = topics.count_documents({"name": {'$regex': context.args[0] + '/'}, "customerID": user["_id"]})
+        n_topics = topics.count_documents({"name": context.args[0], "customerID": user["_id"]})
     else:
         user_topics = topics.find({"customerID": user["_id"]})
         n_topics = topics.count_documents({"customerID": user["_id"]})
